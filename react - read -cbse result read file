@@ -1,0 +1,105 @@
+'use client';
+
+import { useState, ChangeEvent, FC } from 'react';
+
+const FileUpload: React.FC = () => {
+  // Define state types for file content and messages
+  const [fileContent, setFileContent] = useState<string>('');
+  const [message, setMessage] = useState<string>('');
+  const [messageType, setMessageType] = useState<'error' | 'success'>('success');
+
+  // Function to handle error messages for file selection
+  const errorMessage = (file: File | null): string | null => {
+    if (!file) return 'No file selected. Please choose a file.'; //no file
+    if (!file.type.startsWith('text')) return 'Unsupported file type. Please select a text file.'; //no txt file
+    return null;  //if no error
+  };
+
+  // Function to display messages to the user
+  const showMessage = (message: string, type: 'error' | 'success') => {
+    setMessage(message);
+    setMessageType(type);
+  };
+
+  const processData = (p0: string, onFileRead: (content: string) => void) =>{
+    const lines = p0.split(/\r?\n/)  // array
+    const totalLines = lines.length.toString()
+
+    // get table header  --  single line / more line  based on roll no and marks pattern
+
+    //  get starting and end roll no
+
+    // get position of table headers
+
+    // 
+
+    onFileRead(totalLines)
+
+
+  }
+  // Function to handle file reading
+  const fileData = (file: File | null, onFileRead: (content: string) => void) => {
+  // const fileData = (file: File | null) => {
+    if (!file) return;
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      // Pass file content back via callback
+      // onFileRead(reader.result as string);
+      processData( reader.result as string, onFileRead );
+    };
+
+    reader.onerror = () => {
+      showMessage('Error reading the file. Please try again.', 'error');
+    };
+
+    reader.readAsText(file);
+  };
+
+  // Function to handle file selection and processing
+  const handleFileSelection = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] || null;
+
+    // Check for errors in the file selection process  
+    const error = errorMessage(file);  // 
+    if (error) {
+      showMessage(error, 'error');
+      return; // Exit if there's an error
+    }
+
+    // Clear previous content and messages
+    setFileContent('');
+    setMessage('');
+    setMessageType('success');
+
+    // Read the file content
+    fileData(file, setFileContent);
+  };
+
+  return (
+    <div>
+      {/* File input for selecting a .txt file */}
+      <input
+        id="file-input"
+        type="file"
+        accept=".txt"
+        onChange={handleFileSelection}
+      />
+      
+      {/* Message display */}
+      <div
+        id="message"
+        style={{ color: messageType === 'error' ? 'red' : 'green' }}
+      >
+        {message}
+      </div>
+
+      {/* Display file content */}
+      <div id="file-content">
+        <pre>{fileContent}</pre>
+      </div>
+    </div>
+  );
+};
+
+export default FileUpload;
